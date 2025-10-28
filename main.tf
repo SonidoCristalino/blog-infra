@@ -40,7 +40,7 @@ resource "aws_s3_bucket_website_configuration" "blog_website_config" {
   }
 
   error_document {
-    suffix = "404.html"
+    key = "404.html"
   }
 }
 
@@ -58,6 +58,10 @@ resource "aws_s3_bucket_public_access_block" "blog_public_access" {
 
 resource "aws_s3_bucket_policy" "blog_policy" {
   bucket = aws_s3_bucket.blog_bucket.id
+
+  depends_on = [
+    aws_s3_bucket_public_access_block.blog_public_access
+  ]
 
   policy = jsonencode({
     Version = "2012-10-17"
