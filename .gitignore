@@ -1,0 +1,26 @@
+# Archivos de estado local (¡NUNCA subir!)
+terraform.tfstate
+terraform.tfstate.backup
+
+# Directorio de módulos y plugins
+.terraform/
+
+# Logs de crashes
+crash.log
+
+# Archivos de plan
+*.tfplan
+
+# Variables que no deben ser commiteadas
+*.tfvars
+*.tfvars.json
+
+# Archivos de override
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Configuraciones de CLI
+.terraformrc
+terraform.rc
