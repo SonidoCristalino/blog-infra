@@ -148,12 +148,26 @@ resource "aws_acm_certificate_validation" "blog_cert_validation" {
 # 11. Crear la distribución de CloudFront (el CDN)
 resource "aws_cloudfront_distribution" "blog_distribution" {
 
+  # origin {
+  #   # Apunta al bucket S3
+  #   domain_name = aws_s3_bucket.blog_bucket.bucket_regional_domain_name
+  #   origin_id   = "S3-${aws_s3_bucket.blog_bucket.id}"
+  # }
+  
   origin {
-    # Apunta al bucket S3
-    domain_name = aws_s3_bucket.blog_bucket.bucket_regional_domain_name
-    origin_id   = "S3-${aws_s3_bucket.blog_bucket.id}"
-  }
+    # Apunta al ENDPOINT DEL SITIO WEB de S3 (¡el "inteligente"!)
+    domain_name = aws_s3_bucket_website_configuration.blog_website_config.website_endpoint
+    origin_id   = "S3-Website-${aws_s3_bucket.blog_bucket.id}"
 
+    # Añadimos este bloque para decirle a CloudFront cómo hablar con el endpoint
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "http-only" # Los S3 website endpoints solo hablan HTTP
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
+  }
+  
   enabled             = true
   is_ipv6_enabled     = true
   comment             = "CDN para ${var.domain_name}"
@@ -172,7 +186,7 @@ resource "aws_cloudfront_distribution" "blog_distribution" {
   default_cache_behavior {
     allowed_methods  = ["GET", "HEAD", "OPTIONS"]
     cached_methods   = ["GET", "HEAD"]
-    target_origin_id = "S3-${aws_s3_bucket.blog_bucket.id}"
+    target_origin_id = "S3-Website-${aws_s3_bucket.blog_bucket.id}" 
 
     forwarded_values {
       query_string = false
